@@ -1,19 +1,25 @@
-THEOS_PACKAGE_SCHEME = rootless
-TARGET := iphone:clang:16.4:16.0
+THEOS_PACKAGE_SCHEME ?= roothide
+
+ifeq ($(THEOS_PACKAGE_SCHEME),roothide)
+	ARCHS = arm64e
+else
+	ARCHS = arm64 arm64e
+endif
+
+TARGET := iphone:clang:latest:15.0
 INSTALL_TARGET_PROCESSES = SpringBoard
-ARCHS = arm64
 
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = CC18LiquidGlass
 
-CC18LiquidGlass_FILES = Tweak.x \
-	Shared/LGFramework.m \
-	Shared/LGGlassKit.x \
-	Shared/LGLiveBackdropView.m \
-	Shared/LGSharedSupport.m
-CC18LiquidGlass_CFLAGS = -fobjc-arc -IShared
-CC18LiquidGlass_FRAMEWORKS = UIKit Foundation CoreFoundation QuartzCore CoreGraphics CoreText CoreMotion
+# NOTE: Shared/*.m and Shared/LGGlassKit.x are intentionally excluded from compilation.
+# Tweak.x renders its own Liquid Glass layers independently; compiling Shared/ caused
+# duplicate ObjC class collisions (LGLiveBackdropView, etc.) and double-hooking of
+# MTMaterialView with dylv.liquidass, leading to SpringBoard SafeMode crashes.
+CC18LiquidGlass_FILES = Tweak.x
+CC18LiquidGlass_CFLAGS = -fobjc-arc
+CC18LiquidGlass_FRAMEWORKS = UIKit Foundation CoreFoundation QuartzCore CoreGraphics
 
 SUBPROJECTS += CC18LiquidGlassPrefs
 

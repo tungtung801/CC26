@@ -5,6 +5,18 @@
 #import <objc/message.h>
 #import <dlfcn.h>
 #import <math.h>
+#if __has_include(<ptrauth.h>)
+#import <ptrauth.h>
+#endif
+
+static inline const void *CC18StripPAC(const void *ptr) {
+    if (!ptr) return NULL;
+#if defined(__arm64e__) && __has_feature(ptrauth_calls)
+    return ptrauth_strip(ptr, ptrauth_key_function_pointer);
+#else
+    return ptr;
+#endif
+}
 
 // ============================================================================
 // Private class forward declarations
@@ -2421,12 +2433,15 @@ static void ProbeTile(NSMutableString *out, UIView *v, int depth) {
         }
     }
     if ([v respondsToSelector:NSSelectorFromString(@"menu")]) {
-        id menu = [v valueForKey:@"menu"];
-        if (menu) {
-            [line appendFormat:@" MENU=%@", NSStringFromClass([menu class])];
-        }
-        if ([v respondsToSelector:NSSelectorFromString(@"showsMenuAsPrimaryAction")]) {
-            [line appendFormat:@" primary=%@", [v valueForKey:@"showsMenuAsPrimaryAction"]];
+        @try {
+            id menu = [v valueForKey:@"menu"];
+            if (menu) {
+                [line appendFormat:@" MENU=%@", NSStringFromClass([menu class])];
+            }
+            if ([v respondsToSelector:NSSelectorFromString(@"showsMenuAsPrimaryAction")]) {
+                [line appendFormat:@" primary=%@", [v valueForKey:@"showsMenuAsPrimaryAction"]];
+            }
+        } @catch (NSException *e) {
         }
     }
     [out appendFormat:@"%@\n", line];
@@ -2597,7 +2612,7 @@ static void ScanConflicts(void) {
     done = YES;
 
     Dl_info selfInfo;
-    NSString *selfPath = (dladdr((void *)ScanConflicts, &selfInfo) && selfInfo.dli_fname)
+    NSString *selfPath = (dladdr(CC18StripPAC((const void *)ScanConflicts), &selfInfo) && selfInfo.dli_fname)
         ? [NSString stringWithUTF8String:selfInfo.dli_fname]
         : @"";
 
@@ -2635,9 +2650,11 @@ static void ScanConflicts(void) {
             Class targetCls = (meta == 0) ? cls : object_getClass(cls);
             unsigned int count = 0;
             Method *methods = class_copyMethodList(targetCls, &count);
+            if (!methods) continue;
             for (unsigned int i = 0; i < count; i++) {
                 Dl_info info;
-                if (!dladdr((void *)method_getImplementation(methods[i]), &info) || !info.dli_fname) continue;
+                const void *impPtr = CC18StripPAC((const void *)method_getImplementation(methods[i]));
+                if (!impPtr || !dladdr(impPtr, &info) || !info.dli_fname) continue;
                 NSString *path = [NSString stringWithUTF8String:info.dli_fname];
                 if (![path containsString:@"DynamicLibraries"] &&
                     ![path containsString:@"TweakInject"] &&
@@ -2781,6 +2798,7 @@ static void ScanConflicts(void) {
 
 %end
 
+%group C18Conn
 %hook C18ConnectivityView
 
 - (void)_itemTapped:(id)item {
@@ -2793,6 +2811,7 @@ static void ScanConflicts(void) {
     %orig;
 }
 
+%end
 %end
 
 // ============================================================================
@@ -2853,9 +2872,11 @@ static void ScanConflicts(void) {
         ReduceBackgroundBlur(v.window);
         [[CC18BlurKeeper shared] startForWindow:v.window];
         PopModulesIn(v);
+#ifdef CC18_DEBUG_DUMP
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             DumpHorizontalModules();
         });
+#endif
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             ScanConflicts();
         });
@@ -2944,6 +2965,9 @@ static void ScanConflicts(void) {
         if (NSClassFromString(@"FCUIActivityListView")) {
             %init(FocusList);
             NSLog(@"[CC18Glass] focus: list blur removed");
+        }
+        if (NSClassFromString(@"C18ConnectivityView")) {
+            %init(C18Conn);
         }
         if (NSClassFromString(@"C18PageScrollView")) {
             %init(PopPager);

@@ -259,6 +259,13 @@ static void CC18MarkHandled(NSString *name) {
     }];
 }
 
+- (void)cc18SafePresent:(UIViewController *)vc {
+    if (!vc || !self.view.window || self.presentedViewController) {
+        return;
+    }
+    [self presentViewController:vc animated:YES completion:nil];
+}
+
 - (void)showMessage:(NSString *)message {
     UIAlertController *ac = [UIAlertController alertControllerWithTitle:nil
                                                                 message:message
@@ -266,7 +273,7 @@ static void CC18MarkHandled(NSString *name) {
     [ac addAction:[UIAlertAction actionWithTitle:@"ok"
                                            style:UIAlertActionStyleDefault
                                          handler:nil]];
-    [self presentViewController:ac animated:YES completion:nil];
+    [self cc18SafePresent:ac];
 }
 
 - (void)exportSettings {
@@ -449,9 +456,9 @@ static void CC18MarkHandled(NSString *name) {
                                                   handler:^(UIAlertAction *action2) {
                 [weakSelf cc18AfterGreeting];
             }]];
-            [weakSelf presentViewController:ac2 animated:YES completion:nil];
+            [weakSelf cc18SafePresent:ac2];
         }]];
-        [weakSelf presentViewController:ac animated:YES completion:nil];
+        [weakSelf cc18SafePresent:ac];
     });
 }
 
@@ -477,60 +484,74 @@ static void CC18MarkHandled(NSString *name) {
         return;
     }
 
-    NSString *dir = @"/var/mobile/Library/Logs/CrashReporter";
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSArray<NSString *> *files = [fm contentsOfDirectoryAtPath:dir error:nil];
-    if (!files) {
-        if (manual) {
-            [self showMessage:@"Settings is not allowed to read the crash log folder on this device."];
-        }
-        return;
-    }
-
     NSArray<NSString *> *handled = CC18Handled();
-    NSDate *cutoff = [NSDate dateWithTimeIntervalSinceNow:-14.0 * 86400.0];
-    NSMutableArray<NSDictionary *> *candidates = [NSMutableArray array];
+    __weak typeof(self) weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+        @autoreleasepool {
+            NSString *dir = @"/var/mobile/Library/Logs/CrashReporter";
+            NSFileManager *fm = [NSFileManager defaultManager];
+            NSArray<NSString *> *files = [fm contentsOfDirectoryAtPath:dir error:nil];
+            if (!files) {
+                if (manual) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [weakSelf showMessage:@"Settings is not allowed to read the crash log folder on this device."];
+                    });
+                }
+                return;
+            }
 
-    for (NSString *name in files) {
-        if ((![name hasSuffix:@".ips"] && ![name hasSuffix:@".crash"]) || [handled containsObject:name]) {
-            continue;
-        }
-        NSString *path = [dir stringByAppendingPathComponent:name];
-        NSDate *mtime = [[fm attributesOfItemAtPath:path error:nil] fileModificationDate];
-        if (!mtime || [mtime compare:cutoff] == NSOrderedAscending) {
-            continue;
-        }
-        [candidates addObject:@{@"n": name, @"p": path, @"d": mtime}];
-    }
+            NSDate *cutoff = [NSDate dateWithTimeIntervalSinceNow:-14.0 * 86400.0];
+            NSMutableArray<NSDictionary *> *candidates = [NSMutableArray array];
 
-    [candidates sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
-        return [b[@"d"] compare:a[@"d"]];
-    }];
+            for (NSString *name in files) {
+                if ((![name hasSuffix:@".ips"] && ![name hasSuffix:@".crash"]) || [handled containsObject:name]) {
+                    continue;
+                }
+                NSString *path = [dir stringByAppendingPathComponent:name];
+                NSDictionary *attrs = [fm attributesOfItemAtPath:path error:nil];
+                NSDate *mtime = attrs.fileModificationDate;
+                unsigned long long fsize = attrs.fileSize;
+                if (!mtime || fsize == 0 || fsize > 0x200000 || [mtime compare:cutoff] == NSOrderedAscending) {
+                    continue;
+                }
+                [candidates addObject:@{@"n": name, @"p": path, @"d": mtime}];
+            }
 
-    NSUInteger checked = 0;
-    for (NSDictionary *entry in candidates) {
-        if (++checked > 40) {
-            break;
-        }
-        NSData *data = [NSData dataWithContentsOfFile:entry[@"p"]
-                                              options:NSDataReadingMappedIfSafe
-                                                error:nil];
-        if (!data || data.length > 0x400000) {
-            continue;
-        }
-        NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        if (!text) {
-            text = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
-        }
-        if ([text containsString:@"CC18LiquidGlass"] || [text containsString:@"CC18Glass"]) {
-            [self offerCrashLog:entry];
-            return;
-        }
-    }
+            [candidates sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+                return [b[@"d"] compare:a[@"d"]];
+            }];
 
-    if (manual) {
-        [self showMessage:@"No new crash logs that mention CC18 Liquid Glass."];
-    }
+            NSUInteger checked = 0;
+            NSDictionary *found = nil;
+            for (NSDictionary *entry in candidates) {
+                if (++checked > 20) {
+                    break;
+                }
+                @autoreleasepool {
+                    NSData *data = [NSData dataWithContentsOfFile:entry[@"p"] options:0 error:nil];
+                    if (!data || data.length > 0x200000) {
+                        continue;
+                    }
+                    NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    if (!text) {
+                        text = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
+                    }
+                    if ([text containsString:@"CC18LiquidGlass"] || [text containsString:@"CC18Glass"]) {
+                        found = entry;
+                        break;
+                    }
+                }
+            }
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (found) {
+                    [weakSelf offerCrashLog:found];
+                } else if (manual) {
+                    [weakSelf showMessage:@"No new crash logs that mention CC18 Liquid Glass."];
+                }
+            });
+        }
+    });
 }
 
 - (void)offerCrashLog:(NSDictionary *)entry {
@@ -554,7 +575,7 @@ static void CC18MarkHandled(NSString *name) {
         [weakSelf sendCrashLog:path name:name];
     }]];
 
-    [self presentViewController:ac animated:YES completion:nil];
+    [self cc18SafePresent:ac];
 }
 
 - (void)sendCrashLog:(NSString *)path name:(NSString *)name {
