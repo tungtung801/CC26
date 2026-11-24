@@ -17,92 +17,154 @@ on:
           - rootless
 
 jobs:
-  build:
-    name: Build (${{ matrix.scheme }})
+  build-roothide:
+    name: Build RootHide (arm64e)
     runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - scheme: roothide
-            theos_repo: https://github.com/roothide/theos.git
-            expected_arch: arm64e
-          - scheme: rootless
-            theos_repo: https://github.com/theos/theos.git
-            expected_arch: arm64
-
-    if: >-
-      github.event_name != 'workflow_dispatch' ||
-      inputs.scheme == 'both' ||
-      inputs.scheme == matrix.scheme
-
+    if: github.event_name != 'workflow_dispatch' || inputs.scheme == 'both' || inputs.scheme == 'roothide'
     env:
-      THEOS: /Users/runner/theos
-      THEOS_PACKAGE_SCHEME: ${{ matrix.scheme }}
+      THEOS_PACKAGE_SCHEME: roothide
       SDK_NAME: iPhoneOS16.5.sdk
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install build dependencies (ldid, xz)
-        run: |
-          brew update
-          brew install ldid xz
+      - name: Configure Theos path
+        run: echo "THEOS=$HOME/theos-roothide" >> "$GITHUB_ENV"
 
-      - name: Cache Theos & patched iOS SDK
+      - name: Install build dependencies (ldid, xz)
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew install ldid xz
+
+      - name: Cache RootHide Theos & patched iOS SDK
         id: cache-theos
         uses: actions/cache@v4
         with:
           path: ${{ env.THEOS }}
-          key: theos-${{ matrix.scheme }}-${{ env.SDK_NAME }}-v1
+          key: theos-roothide-${{ env.SDK_NAME }}-v1
 
-      - name: Setup Theos & patched iOS SDK
+      - name: Setup RootHide Theos & patched iOS SDK
         if: steps.cache-theos.outputs.cache-hit != 'true'
         run: |
+          set -euo pipefail
           rm -rf "$THEOS"
-          git clone --recursive --depth 1 "${{ matrix.theos_repo }}" "$THEOS"
+          git clone --recursive --depth 1 https://github.com/roothide/theos.git "$THEOS"
           mkdir -p "$THEOS/sdks"
           curl -fSL -o /tmp/sdks.zip "https://github.com/theos/sdks/archive/refs/heads/master.zip"
           unzip -q /tmp/sdks.zip "sdks-master/${SDK_NAME}/*" -d /tmp
           mv "/tmp/sdks-master/${SDK_NAME}" "$THEOS/sdks/${SDK_NAME}"
           rm -rf /tmp/sdks.zip /tmp/sdks-master
 
-      - name: Build .deb package (${{ matrix.scheme }})
+      - name: Build RootHide .deb
         run: |
+          set -euo pipefail
           make clean
           rm -rf packages
-          make package FINALPACKAGE=1 \
-            THEOS="$THEOS" \
-            THEOS_PACKAGE_SCHEME="${{ matrix.scheme }}" \
-            THEOS_DEVICE_IP=""
+          make package FINALPACKAGE=1 THEOS="$THEOS" THEOS_PACKAGE_SCHEME=roothide THEOS_DEVICE_IP=""
 
-      - name: Verify Mach-O architecture & minOS (15.0)
+      - name: Verify Mach-O architecture (arm64e) & minOS (15.0)
         run: |
           set -euo pipefail
           DEB_FILE=$(ls -1 packages/*.deb | head -n 1)
           echo "Built package: $DEB_FILE"
-          mkdir -p /tmp/verify_deb
-          ar -x "$DEB_FILE" --output /tmp/verify_deb 2>/dev/null || (cd /tmp/verify_deb && ar -x "$GITHUB_WORKSPACE/$DEB_FILE")
+          rm -rf /tmp/verify_deb && mkdir -p /tmp/verify_deb
+          (cd /tmp/verify_deb && ar -x "$GITHUB_WORKSPACE/$DEB_FILE")
           DATA_TAR=$(ls /tmp/verify_deb/data.tar.*)
           tar -xf "$DATA_TAR" -C /tmp/verify_deb
 
-          DYLIB=$(find /tmp/verify_deb -name "CC18LiquidGlass.dylib" | head -n 1)
+          DYLIB=$(find /tmp/verify_deb -name "CC18LiquidGlass.dylib" -type f | head -n 1)
           PREFS=$(find /tmp/verify_deb -name "CC18LiquidGlassPrefs" -type f | head -n 1)
 
-          echo "=== Verifying CC18LiquidGlass.dylib ==="
+          echo "=== CC18LiquidGlass.dylib ==="
           lipo -info "$DYLIB"
-          lipo -info "$DYLIB" | grep -q "${{ matrix.expected_arch }}"
+          lipo -info "$DYLIB" | grep -q "arm64e"
           otool -l "$DYLIB" | grep -A 3 LC_BUILD_VERSION
 
-          echo "=== Verifying CC18LiquidGlassPrefs ==="
+          echo "=== CC18LiquidGlassPrefs ==="
           lipo -info "$PREFS"
-          lipo -info "$PREFS" | grep -q "${{ matrix.expected_arch }}"
+          lipo -info "$PREFS" | grep -q "arm64e"
           otool -l "$PREFS" | grep -A 3 LC_BUILD_VERSION
 
-      - name: Upload .deb artifact (${{ matrix.scheme }})
+      - name: Upload RootHide .deb artifact
         uses: actions/upload-artifact@v4
         with:
-          name: CC18LiquidGlass-${{ matrix.scheme }}
+          name: CC18LiquidGlass-roothide-arm64e
+          path: packages/*.deb
+          if-no-files-found: error
+
+  build-rootless:
+    name: Build Rootless (arm64 + arm64e)
+    runs-on: macos-latest
+    if: github.event_name != 'workflow_dispatch' || inputs.scheme == 'both' || inputs.scheme == 'rootless'
+    env:
+      THEOS_PACKAGE_SCHEME: rootless
+      SDK_NAME: iPhoneOS16.5.sdk
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Theos path
+        run: echo "THEOS=$HOME/theos-rootless" >> "$GITHUB_ENV"
+
+      - name: Install build dependencies (ldid, xz)
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+        run: brew install ldid xz
+
+      - name: Cache Theos & patched iOS SDK
+        id: cache-theos
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.THEOS }}
+          key: theos-rootless-${{ env.SDK_NAME }}-v1
+
+      - name: Setup Theos & patched iOS SDK
+        if: steps.cache-theos.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          rm -rf "$THEOS"
+          git clone --recursive --depth 1 https://github.com/theos/theos.git "$THEOS"
+          mkdir -p "$THEOS/sdks"
+          curl -fSL -o /tmp/sdks.zip "https://github.com/theos/sdks/archive/refs/heads/master.zip"
+          unzip -q /tmp/sdks.zip "sdks-master/${SDK_NAME}/*" -d /tmp
+          mv "/tmp/sdks-master/${SDK_NAME}" "$THEOS/sdks/${SDK_NAME}"
+          rm -rf /tmp/sdks.zip /tmp/sdks-master
+
+      - name: Build Rootless .deb
+        run: |
+          set -euo pipefail
+          make clean
+          rm -rf packages
+          make package FINALPACKAGE=1 THEOS="$THEOS" THEOS_PACKAGE_SCHEME=rootless THEOS_DEVICE_IP=""
+
+      - name: Verify Mach-O architecture (arm64 + arm64e) & minOS (15.0)
+        run: |
+          set -euo pipefail
+          DEB_FILE=$(ls -1 packages/*.deb | head -n 1)
+          echo "Built package: $DEB_FILE"
+          rm -rf /tmp/verify_deb && mkdir -p /tmp/verify_deb
+          (cd /tmp/verify_deb && ar -x "$GITHUB_WORKSPACE/$DEB_FILE")
+          DATA_TAR=$(ls /tmp/verify_deb/data.tar.*)
+          tar -xf "$DATA_TAR" -C /tmp/verify_deb
+
+          DYLIB=$(find /tmp/verify_deb -name "CC18LiquidGlass.dylib" -type f | head -n 1)
+          PREFS=$(find /tmp/verify_deb -name "CC18LiquidGlassPrefs" -type f | head -n 1)
+
+          echo "=== CC18LiquidGlass.dylib ==="
+          lipo -info "$DYLIB"
+          lipo -info "$DYLIB" | grep -q "arm64"
+          otool -l "$DYLIB" | grep -A 3 LC_BUILD_VERSION
+
+          echo "=== CC18LiquidGlassPrefs ==="
+          lipo -info "$PREFS"
+          lipo -info "$PREFS" | grep -q "arm64"
+          otool -l "$PREFS" | grep -A 3 LC_BUILD_VERSION
+
+      - name: Upload Rootless .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CC18LiquidGlass-rootless-arm64
           path: packages/*.deb
           if-no-files-found: error
