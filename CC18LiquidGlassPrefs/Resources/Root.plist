@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Turns the whole glass look on or off. Pick one style: iOS 27 Liquid Glass (neutral frosted glass with a thick bevel edge and a springy page slide) or iOS 26 Liquid Glass (the current look). When iOS 27 is on, iOS 26 is switched off and greyed out.</string>
+			<key>label</key>
+			<string>Control Center glass</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>key</key>
+			<string>enabled</string>
+			<key>label</key>
+			<string>Enabled</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<false/>
+			<key>id</key>
+			<string>style27</string>
+			<key>key</key>
+			<string>style27</string>
+			<key>label</key>
+			<string>iOS 27 Liquid Glass</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>id</key>
+			<string>style26</string>
+			<key>key</key>
+			<string>style26</string>
+			<key>label</key>
+			<string>iOS 26 Liquid Glass</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Open Control Center once, then come back here to see if another tweak is hooking it.</string>
+			<key>id</key>
+			<string>conflicts</string>
+			<key>label</key>
+			<string>CC18LiquidGlass</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>One tap sets all the glass sliders below to a ready-made look. You can still change them after.</string>
+			<key>label</key>
+			<string>Looks</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>presetDefault</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Default</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>presetClear</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Clear glass</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>presetFrosted</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Frosted glass</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>presetBold</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Bold glass</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Master strength of the glass on every module. It scales the tint, edges, shading and colour together. 1.0 is the default. (It stops at 0.25 so the glass never vanishes; use the switch at the top to turn it off.)</string>
+			<key>label</key>
+			<string>Glass strength</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>1.0</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>intensity</string>
+			<key>label</key>
+			<string>Glass strength</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.25</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>How much white lift the glass has. 0 is pure clear blur, higher is milkier and brighter. 1.3 is the default.</string>
+			<key>label</key>
+			<string>Tint</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>1.316</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>tint</string>
+			<key>label</key>
+			<string>Tint</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>The thin bright lines along the top and bottom edge of each module. 0 hides them, 2 makes them bold. 1.3 is the default. Very high values are softened on purpose so the edges never turn harsh.</string>
+			<key>label</key>
+			<string>Edge highlight</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>1.265</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>rim</string>
+			<key>label</key>
+			<string>Edge highlight</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>The darker shading at the top and the thin dark outline on the sides, which give the glass thickness. 0 is flat, 2 is deep. 0.8 is the default.</string>
+			<key>label</key>
+			<string>Depth</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>0.8</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>depth</string>
+			<key>label</key>
+			<string>Depth</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>How vivid the wallpaper looks through the glass. Lower is greyer, higher is more vivid. 0.8 is the default.</string>
+			<key>label</key>
+			<string>Glass colour</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>0.8</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>color</string>
+			<key>label</key>
+			<string>Glass colour</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>How much the wallpaper and apps are blurred behind each module (buttons, sliders, tiles). Lower is sharper, higher is frostier. 0.3 is the default.</string>
+			<key>label</key>
+			<string>Blur inside modules</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>0.314</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>blur</string>
+			<key>label</key>
+			<string>Blur inside modules</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.25</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>How blurred the home screen behind Control Center is. 0 is no blur at all, so your apps stay sharp. Higher turns it into smooth colour. 20 is the default: the heavy, soft look of iOS 26.</string>
+			<key>label</key>
+			<string>Background blur</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>20.0</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>bgBlur</string>
+			<key>label</key>
+			<string>Background blur</string>
+			<key>max</key>
+			<real>24.0</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>How vivid the colours behind Control Center are. 1.0 is natural (the default), lower is washed out and greyer, higher is more vivid.</string>
+			<key>label</key>
+			<string>Background colour</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>1.0</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>bgSat</string>
+			<key>label</key>
+			<string>Background colour</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.5</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>How much the background is dimmed. 0 means not dimmed at all, higher is darker and makes white icons easier to read. 0.25 is the default.</string>
+			<key>label</key>
+			<string>Background darkness</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>0.25</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>bgDark</string>
+			<key>label</key>
+			<string>Background darkness</string>
+			<key>max</key>
+			<real>0.6</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>A dark shade at the top of the background that fades out about a third of the way down, like the iOS 26 reference. 0 is none, 1 is the strongest. 0.8 is the default.</string>
+			<key>label</key>
+			<string>Background top shade</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>0.8</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>bgTop</string>
+			<key>label</key>
+			<string>Background top shade</string>
+			<key>max</key>
+			<real>1.0</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Turns the liquid page slide on or off: the rows trail behind when you swipe between Control Center pages and then catch up. The animation has to be on for the liquid stretch to work.</string>
+			<key>label</key>
+			<string>Liquid animation</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>key</key>
+			<string>animation</string>
+			<key>label</key>
+			<string>Liquid animation</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>How stretchy the modules are while the pages slide: they get pulled longer, then wobble back like a drop of water. The music module stretches the most. 0 is no stretch, 2 is very jelly (the default). The liquid animation switch above has to be on for the liquid stretch to work.</string>
+			<key>label</key>
+			<string>Liquid stretch</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<real>2.0</real>
+			<key>isContinuous</key>
+			<false/>
+			<key>key</key>
+			<string>stretch</string>
+			<key>label</key>
+			<string>Liquid stretch</string>
+			<key>max</key>
+			<real>2.0</real>
+			<key>min</key>
+			<real>0.0</real>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>The glass leans toward your finger when you press a module, then settles back like a drop of liquid. No glow.</string>
+			<key>label</key>
+			<string>Touch</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>key</key>
+			<string>touch</string>
+			<key>label</key>
+			<string>Touch lean</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Export saves your whole look as cc18.json (Save to Files, AirDrop, Messages...). Import loads a cc18.json from a friend or from your backup. Anything missing or out of range in the file is ignored.</string>
+			<key>label</key>
+			<string>Share your style</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>exportSettings</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Export settings (cc18.json)</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>importSettings</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Import settings (cc18.json)</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>When this page opens, it looks for crash logs that mention CC18 Liquid Glass. If it finds one you can ignore it or send it to Seko. Nothing is sent unless you tap "send to seko".</string>
+			<key>label</key>
+			<string>Crash reports</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>key</key>
+			<string>crashSense</string>
+			<key>label</key>
+			<string>Detect crash logs</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>checkCrashLogsNow</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Check for crash logs now</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Puts every setting back to the default look.</string>
+			<key>label</key>
+			<string>Trouble?</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>resetDefaults</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Reset to defaults</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Opens Seko’s Discord profile.</string>
+			<key>label</key>
+			<string>Having issues?</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>openDiscord</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>Having issues? Contact Seko via Discord</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>footerText</key>
+			<string>Tap a name to open their Discord profile.</string>
+			<key>label</key>
+			<string>Thanks to</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>openZepew</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>zepew.</string>
+		</dict>
+		<dict>
+			<key>action</key>
+			<string>openFemboy</string>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>label</key>
+			<string>femboy</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>CC18 Liquid Glass</string>
+</dict>
+</plist>

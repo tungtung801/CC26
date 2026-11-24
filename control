@@ -1,0 +1,10 @@
+Package: com.seko.cc18liquidglass
+Name: CC18LiquidGlass
+Depends: mobilesubstrate, preferenceloader, firmware (>= 14.0), dylv.liquidass (>= 0.1.2t+r2)
+Description: Liquid (Gl)ass renderer integration for the iOS 18 Control Center replica
+Maintainer: Seko
+Author: Seko
+Section: Tweaks
+Architecture: iphoneos-arm64
+Version: 1.0.2-6+debug
+Installed-Size: 732
