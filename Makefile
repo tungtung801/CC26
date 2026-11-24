@@ -6,7 +6,7 @@ else
 	ARCHS = arm64 arm64e
 endif
 
-TARGET := iphone:clang:latest:15.0
+TARGET := iphone:clang:16.5:15.0
 INSTALL_TARGET_PROCESSES = SpringBoard
 
 include $(THEOS)/makefiles/common.mk
@@ -18,7 +18,7 @@ TWEAK_NAME = CC18LiquidGlass
 # duplicate ObjC class collisions (LGLiveBackdropView, etc.) and double-hooking of
 # MTMaterialView with dylv.liquidass, leading to SpringBoard SafeMode crashes.
 CC18LiquidGlass_FILES = Tweak.x
-CC18LiquidGlass_CFLAGS = -fobjc-arc
+CC18LiquidGlass_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-unused-function
 CC18LiquidGlass_FRAMEWORKS = UIKit Foundation CoreFoundation QuartzCore CoreGraphics
 
 SUBPROJECTS += CC18LiquidGlassPrefs

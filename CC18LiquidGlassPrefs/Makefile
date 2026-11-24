@@ -6,7 +6,7 @@ else
 	ARCHS = arm64 arm64e
 endif
 
-TARGET := iphone:clang:latest:15.0
+TARGET := iphone:clang:16.5:15.0
 
 include $(THEOS)/makefiles/common.mk
 
@@ -16,7 +16,7 @@ CC18LiquidGlassPrefs_FILES = CC18LiquidGlassRootListController.m
 CC18LiquidGlassPrefs_FRAMEWORKS = UIKit Foundation CoreFoundation CoreGraphics
 CC18LiquidGlassPrefs_PRIVATE_FRAMEWORKS = Preferences
 CC18LiquidGlassPrefs_INSTALL_PATH = /Library/PreferenceBundles
-CC18LiquidGlassPrefs_CFLAGS = -fobjc-arc
+CC18LiquidGlassPrefs_CFLAGS = -fobjc-arc -Wno-deprecated-declarations -Wno-unused-function
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 
